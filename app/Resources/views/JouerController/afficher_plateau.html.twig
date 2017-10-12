@@ -1,0 +1,127 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}AppBundle:JouerController:afficherPlateau{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .terrain {
+            clear: both;
+            width: 100%;
+            height: 80px;
+        }
+        .bornes {
+            width: 100%;
+            background-color: #0088CC;
+            padding: 0px;
+            clear: both;
+        }
+        .borne {
+            width: 120px;
+            height: 80px;
+            background-color: #66dd66;
+            float: left;
+            margin: 10px;
+        }
+        .carte {
+            width: 100px;
+            height: 80px;
+            background-color: #66dd66;
+            float: left;
+            margin: 10px;
+        }
+        .colonne {
+            float: left;
+            width: 120px;
+            background-color: #6c6159;
+            margin: 10px;
+        }
+    </style>
+{% endblock %}
+
+
+{% block body %}
+    <h1>Welcome to the JouerController:afficherPlateau page</h1>
+
+    <div class="terrain">
+        {% for i in 1..9 %}
+            <div class="colonne">
+                {% for carte_id in partie.terrainj1['col'~i]['j2'] %}
+                    <div class="carte">
+                        {% if carte_id == 0 %}
+                            Libre
+                        {% else %}
+                            {{ tcartes[carte_id].couleur.libelle }} - {{ tcartes[carte_id].image }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="bornes">
+        {% for borne in tbornes %}
+            <div class="borne">
+                {{ borne.image }}
+            </div>
+        {% endfor %}
+
+        <div class="carte">
+            <a href="">Piocher</a>
+        </div>
+    </div>
+
+    <div class="terrain">
+        {% for i in 1..9 %}
+            <div class="colonne">
+                {% for carte_id in partie.terrainj1['col'~i]['j1'] %}
+
+                    {% if carte_id == 0 %}
+                        <div class="carte zonelibre" data-colonne = "{{ i }}">
+                            Libre
+                        </div>
+                    {% else %}
+                        <div class="carte">
+                            {{ tcartes[carte_id].couleur.texte }} - {{ tcartes[carte_id].numero }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="terrain">
+        {% for carte_id in partie.mainj1 %}
+            <div class="carte mescartes" data-carte="{{ carte_id }}">
+                {{ tcartes[carte_id].couleur.texte }} - {{ tcartes[carte_id].numero }}
+            </div>
+        {% endfor %}
+    </div>
+
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(function () {
+            $(".mescartes").draggable();
+            $(".zonelibre").droppable({
+                drop: function (event, ui) {
+                    $(this).addClass("ui-state-highlight");
+                    $.ajax({
+                        url: "{{ path('jouer_carte') }}",
+                        method: 'POST',
+                        data: {
+                            colonne: $(this).data('colonne'),
+                            carte: ui.draggable.data('carte'),
+                            partie: {{ partie.id }}
+                        }
+                    })
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+
+
+

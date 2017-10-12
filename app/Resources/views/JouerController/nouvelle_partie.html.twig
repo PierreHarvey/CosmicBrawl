@@ -1,0 +1,14 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}AppBundle:JouerController:nouvellePartie{% endblock %}
+
+{% block body %}
+    <h1>Welcome to the JouerController:nouvellePartie page</h1>
+    {{ form_start(form) }}
+
+    {{ form_widget(form) }}
+    <input  type="submit" value="Créer Partie" />
+
+    {{ form_end(form) }}
+
+{% endblock %}

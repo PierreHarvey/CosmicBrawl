@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+
+        <title>{% block title %}Cosmic Brawl !{% endblock %}</title>
+
+
+
+        <link rel="stylesheet" href="{{ asset('assets/jquery-ui.min.css') }}" />
+
+
+        {% block stylesheets %}{% endblock %}
+
+
+
+
+    </head>
+
+
+    <body>
+
+
+
+        {% block body %} {% endblock %}
+
+        <script src="{{ asset('assets/jquery-3.2.1.min.js') }}"></script>
+        <script src="{{ asset('assets/jquery-ui.min.js') }}"></script>
+
+
+        {% block javascripts %} {% endblock %}
+
+
+    </body>
+</html>
