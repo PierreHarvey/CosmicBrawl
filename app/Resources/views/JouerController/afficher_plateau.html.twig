@@ -66,7 +66,7 @@
         {% endfor %}
 
         <div class="carte">
-            <a href="">Piocher</a>
+            <a href="{{ path('piocher') }}">Piocher</a>
         </div>
     </div>
 
@@ -102,24 +102,33 @@
 
 {% block javascripts %}
     <script>
-        $(function () {
-            $(".mescartes").draggable();
-            $(".zonelibre").droppable({
-                drop: function (event, ui) {
-                    $(this).addClass("ui-state-highlight");
-                    $.ajax({
-                        url: "{{ path('jouer_carte') }}",
-                        method: 'POST',
-                        data: {
-                            colonne: $(this).data('colonne'),
-                            carte: ui.draggable.data('carte'),
-                            partie: {{ partie.id }}
-                        }
-                    })
+        {% if partie.mainj1|length == 6 %}
+        $( function() {
+
+            $( ".mescartes" ).draggable({ revert: "invalid" });
+            $( ".zonelibre" ).droppable({
+                classes: {
+                    "ui-droppable-active": "ui-state-active",
+                    "ui-droppable-hover": "ui-state-hover"
+                },
+                drop: function( event, ui ) {
+                        $( this )
+                            .addClass( "ui-state-highlight" )
+                        $.ajax({
+                            url: "{{ path('jouer_carte') }}",
+                            method: 'POST',
+                            data: {
+                                colonne: $(this).data('colonne'),
+                                carte: ui.draggable.data('carte'),
+                                partie: {{ partie.id }}
+                            }
+                        });
+                        location.reload();
                 }
             });
-        });
+        } );
     </script>
+{% endif %}
 {% endblock %}
 
 

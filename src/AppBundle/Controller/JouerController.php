@@ -53,7 +53,7 @@ class JouerController extends Controller
                 $mainJ1[] = $tcarte[$i];
             }
             $partie->setMainj1($mainJ1);
-            //distributoon de la main de J2
+            //distribution de la main de J2
             $mainJ2=array();
             for($i = 6; $i<12; $i++)
             {
@@ -135,11 +135,43 @@ class JouerController extends Controller
         $idpartie = $request->request->get('partie');
         $em = $this->getDoctrine()->getManager();
         $partie = $em->getRepository('AppBundle:Partie')->find($idpartie);
+
+
+
+        // sauvegarde carte sur terrain
         $terrainJ1 = $partie->getTerrainj1();
-        $terrainJ1['col'.$colonne]['j1'][0] = $idcarte; //sauvegarde l'id de la carte dans le terrain du joueur 1.
-        //Attention il faut vérifier l'emplacement dans la colonne... 0 c'est pour tester
+
+        if ($terrainJ1['col'.$colonne]['j1'][0] == "libre")
+        {
+            $terrainJ1['col'.$colonne]['j1'][0] = $idcarte; //sauvegarde l'id de la carte dans le terrain du joueur 1.
+        }
+        else
+        {
+            if ($terrainJ1['col'.$colonne]['j1'][1] == "libre")
+            {
+                $terrainJ1['col'.$colonne]['j1'][1] = $idcarte;
+            }
+            else
+            {
+                if ($terrainJ1['col'.$colonne]['j1'][2] == "libre")
+                {
+                    $terrainJ1['col'.$colonne]['j1'][2] = $idcarte;
+                }
+
+            }
+        }
+
+
+
+       //Supprimer la carte de la main du joueur.
+
         $mainj1 = $partie->getMainj1();
-        //Supprimer la carte de la main du joueur.
+
+        $index = array_search($idcarte, $mainj1);
+        unset($mainj1[$index]);
+        $mainj1 = array_values($mainj1);
+
+
         $partie->setTerrainj1($terrainJ1);
         $partie->setMainj1($mainj1);
         $em->persist($partie);
@@ -147,14 +179,33 @@ class JouerController extends Controller
         return new Response('ok', 200);
     }
     /**
-     * @Route("/piocher")
+     * @Route("/piocher", name="piocher")
      */
-    public function piocherAction()
+
+        public function piocherAction(Request $request)
     {
-        return $this->render(':JouerController:piocher.html.twig', array(
-            // ...
+
+        $idpartie = $request->request->get('partie');
+        $em = $this->getDoctrine()->getManager();
+        $cartes = $em->getRepository('AppBundle:Carte')->findAll();
+        $partie = $em->getRepository('AppBundle:Partie')->find($idpartie);
+
+        /*
+        $partie->getPioche();
+        $carte = $pioche[0];
+        unset($pioche[0]);
+        $pioche = array_values($pioche);
+        $mainJ1[] = $carte;
+        */
+
+        return $this->render('AppBundle:JouerController:afficher_plateau.html.twig', array(
+            'partie' => $partie,
+            'cartes' => $cartes
         ));
+
+
     }
+    
     /**
      * @Route("/revendiquerBorne")
      */

@@ -20,7 +20,7 @@ class PartieType extends AbstractType
 
             ->add('joueur1', EntityType::class, array(
                 'class' => 'AppBundle\Entity\Joueur',
-                'choice_label' => 'Pseudo',
+                'choice_label' => 'username',
                 'label' => 'Selectionnez le joueur 1'
         ))
 
@@ -29,7 +29,7 @@ class PartieType extends AbstractType
 
                 ->add('joueur2', EntityType::class, array(
                     'class' => 'AppBundle\Entity\Joueur',
-                    'choice_label' => 'Pseudo',
+                    'choice_label' => 'username',
                     'label' => 'Selectionnez le joueur 2'
     ));
     }
