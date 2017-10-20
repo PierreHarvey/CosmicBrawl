@@ -1,0 +1,45 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}Cosmic Brawl{% endblock %}
+
+{% block body %}
+<div id="plateau">
+    <div class="partiesj1">
+
+        <h1>Vos parties en cours : </h1>
+        {% for partie as parties1 %}
+
+            <ul>
+
+                <li>{{ partie.joueur2.username }}
+                <li>{{ partie.encours }}</li>
+                <li>{{ partie.debutPartie|date('l,h,i')}}</li>
+                <li>
+
+                    <button href="{{ path('affiche_plateau',{partie:partie.id} ) }}"> Jouer </button>
+                </li>
+
+            </ul>
+
+        {% endfor %}
+    </div>
+
+    <div class="partiesj2">
+
+        <h1>Vos parties en cours : </h1>
+        {% for partie as parties2 %}
+
+            <ul>
+
+                <li>{{ partie.joueur1.username }}
+                <li>{{ partie.encours }}</li>
+                <li>{{ partie.debutPartie|date('l,h,i')}}</li>
+                <li> <a href" {{ path('affiche_plateau',{partie:partie.id} ) }}</li>
+
+            </ul>
+
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

@@ -1,104 +1,183 @@
 {% extends "::base.html.twig" %}
 
-{% block title %}AppBundle:JouerController:afficherPlateau{% endblock %}
+{% block title %} Cosmic Brawl{% endblock %}
+
 
 {% block stylesheets %}
-    <style>
-        .terrain {
-            clear: both;
-            width: 100%;
-            height: 80px;
-        }
-        .bornes {
-            width: 100%;
-            background-color: #0088CC;
-            padding: 0px;
-            clear: both;
-        }
-        .borne {
-            width: 120px;
-            height: 80px;
-            background-color: #66dd66;
-            float: left;
-            margin: 10px;
-        }
-        .carte {
-            width: 100px;
-            height: 80px;
-            background-color: #66dd66;
-            float: left;
-            margin: 10px;
-        }
-        .colonne {
-            float: left;
-            width: 120px;
-            background-color: #6c6159;
-            margin: 10px;
-        }
-    </style>
+<style>
+    #plateau {
+        width: 100%;
+        margin: auto;
+        position: absolute;
+    }
+    .terrain {
+        clear: both;
+        width: 100%;
+        height: 40px;
+    }
+    .bornes {
+        width: 100%;
+        background-color: #0088CC;
+        padding: 0px;
+        clear: both;
+    }
+    .borne {
+        width: 120px;
+        height: 40px;
+        background-color: #66dd66;
+        float: left;
+        margin: 10px;
+    }
+    .carte {
+        width: 100px;
+        height: 40px;
+        background-color: #66dd66;
+        float: left;
+        margin: 10px;
+    }
+    .zonelibre {
+        width: 100px;
+        height: 40px;
+        background-color: #B0413E;
+        float: left;
+        margin: 10px;
+    }
+    .colonne {
+        float: left;
+        width: 120px;
+        background-color: #6c6159;
+        margin: 10px;
+    }
+    .Couleur_1{
+        background-color: #801515;
+    }
+    .Couleur_2{
+        background-color: #D49A6A;
+    }
+    .Couleur_3{
+        background-color: #116611;
+    }
+    .Couleur_4{
+        background-color: #407F7F;
+    }
+    .Couleur_5{
+        background-color: #FFF4AA;
+    }
+    .Couleur_6{
+        background-color: #665091;
+    }
+    .numero {
+        color: #cccccc;
+        font-weight: bold;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        font-size: 30px;
+        height: 100%;
+        vertical-align: middle;
+    }
+</style>
 {% endblock %}
 
 
 {% block body %}
-    <h1>Welcome to the JouerController:afficherPlateau page</h1>
+<h1>Partie en cours</h1>
 
-    <div class="terrain">
-        {% for i in 1..9 %}
-            <div class="colonne">
-                {% for carte_id in partie.terrainj1['col'~i]['j2'] %}
-                    <div class="carte">
-                        {% if carte_id == 0 %}
-                            Libre
-                        {% else %}
-                            {{ tcartes[carte_id].couleur.libelle }} - {{ tcartes[carte_id].image }}
-                        {% endif %}
-                    </div>
-                {% endfor %}
+<div id="plateau">
+    <h2>Adversaire : {{ adversaire.username }}</h2>
+    <div class="bornes">
+        {% for borne in partie.listeDesBornes %}
+            <div class="borne">
+                {% if borne.position == nomadversaire %}
+                    {{ tbornes[borne.id_borne].image }}
+                {% else %}
+                    -
+                {% endif %}
             </div>
         {% endfor %}
     </div>
+    <div class="terrain">
+        {% for i in 1..9 %}
+        <div class="colonne">
+            {% for carte_id in terrainadversaire['col'~i] %}
 
-    <div class="bornes">
-        {% for borne in tbornes %}
-            <div class="borne">
-                {{ borne.image }}
+            {% if carte_id == 0 %}
+            <div class="carte">
+                Libre
+                {% else %}
+                <div class="carte {{ tcartes[carte_id].couleur.libelle }}">
+                    <p class="numero">{{ tcartes[carte_id].numero }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
 
-        <div class="carte">
-            <a href="{{ path('piocher') }}">Piocher</a>
+        <div class="bornes">
+            {% for borne in partie.listeDesBornes %}
+                <div class="borne">
+                    {% if borne.position == 'neutre' %}
+                        {{ tbornes[borne.id_borne].image }}
+                        <p><a href="{{ path('app_jouer_revendiquerborne', {borne:borne.id_borne}) }}">Revendiquer</a></p>
+                    {% else %}
+                        -
+                    {% endif %}
+
+                </div>
+            {% endfor %}
+
+            <div class="carte">
+                <a href="{{ path('jouer_piocher', {partie:partie.id}) }}">Piocher</a>
+            </div>
+        </div>
+        <br/>
+        <h2 style="clear: both">Vous : {{ user.username }}</h2>
+        {% if montour == false %}
+            <div class="alert alert-danger">En attente de l'autre joueur</div>
+        {% endif %}
+
+        <div class="terrain">
+            {% for i in 1..9 %}
+                <div class="colonne">
+                    {% for carte_id in terrainencours['col'~i] %}
+
+                        {% if carte_id == 0 %}
+                            <div class="carte {% if montour == true %}zonelibre{% endif %}" data-colonne = "{{ i }}">
+                                Libre
+                            </div>
+                        {% else %}
+                            <div class="carte {{ tcartes[carte_id].couleur.texte }}">
+                                <p class="numero">{{ tcartes[carte_id].numero }}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="bornes">
+            {% for borne in partie.listeDesBornes %}
+                <div class="borne">
+                    {% if borne.position == nomencours %}
+                        {{ tbornes[borne.id_borne].image }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="terrain">
+            {% for carte_id in mainencours %}
+                <div class="carte mescartes {{ tcartes[carte_id].couleur.texte }}" data-carte="{{ carte_id }}">
+                    <p class="numero">{{ tcartes[carte_id].numero }}</p>
+                </div>
+            {% endfor %}
         </div>
     </div>
 
-    <div class="terrain">
-        {% for i in 1..9 %}
-            <div class="colonne">
-                {% for carte_id in partie.terrainj1['col'~i]['j1'] %}
-
-                    {% if carte_id == 0 %}
-                        <div class="carte zonelibre" data-colonne = "{{ i }}">
-                            Libre
-                        </div>
-                    {% else %}
-                        <div class="carte">
-                            {{ tcartes[carte_id].couleur.texte }} - {{ tcartes[carte_id].numero }}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        {% endfor %}
-    </div>
-
-    <div class="terrain">
-        {% for carte_id in partie.mainj1 %}
-            <div class="carte mescartes" data-carte="{{ carte_id }}">
-                {{ tcartes[carte_id].couleur.texte }} - {{ tcartes[carte_id].numero }}
-            </div>
-        {% endfor %}
-    </div>
-
-
-{% endblock %}
+    {% endblock %}
 
 {% block javascripts %}
     <script>
