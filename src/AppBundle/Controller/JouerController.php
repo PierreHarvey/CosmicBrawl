@@ -226,12 +226,13 @@ class JouerController extends Controller
         $em->flush();
         return new Response('ok', 200);
     }
+
     /**
      * @Route("/piocher/{partie}", name="jouer_piocher")
      */
     public function piocherAction(Partie $partie)
     {
-        if (count($partie->getMainj1()) < 6)
+        if (count($mainencours) < 6)
         {
 
             $pioche = $partie->getPioche();
@@ -270,8 +271,9 @@ class JouerController extends Controller
      */
     public function revendiquerBorneAction()
     {
-        return $this->render(':JouerController:revendiquer_borne.html.twig', array(
-            // ...
-        ));
+        $em = $this->getDoctrine()->getManager();
+        $cartes = $em->getRepository('AppBundle:Carte')->findAll();
+
+        $tcarte = array();
     }
 }
