@@ -27,6 +27,7 @@ class JouerController extends Controller
             //récupére la connexion à la BDD
             $em = $this->getDoctrine()->getManager();
             // initialisation des données de la partie
+
             //récupération de toutes les bornes
             $bornes = $em->getRepository("AppBundle:Borne")->findAll();
             $tborne=array(); //tableau qui sera sauvegardé dans la BDD
@@ -232,8 +233,7 @@ class JouerController extends Controller
      */
     public function piocherAction(Partie $partie)
     {
-        if (count($mainencours) < 6)
-        {
+
 
             $pioche = $partie->getPioche();
             $carte = $pioche[0];
@@ -260,20 +260,84 @@ class JouerController extends Controller
             ));
 
         }
-        else {
 
-            return $this->redirectToRoute('affiche_plateau', array(
-                'partie' => $partie->getId() ));
-        }
-    }
+
     /**
-     * @Route("/revendiquerBorne")
+     * @Route("/revendiquerBorne/{borne}/{partie}")
      */
-    public function revendiquerBorneAction()
+    public function revendiquerBorneAction(Request $request, Partie $partie)
     {
         $em = $this->getDoctrine()->getManager();
-        $cartes = $em->getRepository('AppBundle:Carte')->findAll();
+        $borne = $em->getRepository("AppBundle:Borne")->findAll();
 
-        $tcarte = array();
+        $j1 = $partie->getTerrainj1()['col'.$borne];
+        $j2 = $partie->getTerrainj2()['col'.$borne];
+        $scoreJ1 = $this->calculValeur($j1);
+        $scoreJ2 = $this->calculValeur($j2);
+        $etatBorne = $partie->getListeDesBornes();
+        if ($scoreJ1 > $scoreJ2)
+        {
+            $etatBorne[$borne]['position'] = 'j1';
+        } elseif ($scoreJ1 < $scoreJ2)
+        {
+            $etatBorne[$borne]['position'] = 'j2';
+        }
+        $em = $this->getDoctrine()->getManager();
+        $partie->setListeDesBornes($etatBorne);
+        $em->persist($partie);
+        $em->flush();
+        return $this->redirectToRoute('affiche_plateau', array(
+            'partie' => $partie->getId()
+        ));
+    }
+    private function calculValeur($tableau)
+    {
+        if (count($tableau) == 3) {
+            $cartes = $this->getDoctrine()->getRepository('AppBundle:Carte')->findAll();
+            $tcarte = array();
+            foreach ($cartes as $carte) {
+                $tcarte[$carte->getId()] = $carte; //sauvegarde les id des cartes dans un tableau
+            }
+
+            $tValeur = array(
+                $tcarte[$tableau[0]]->getNumero(),
+                $tcarte[$tableau[1]]->getNumero(),
+                $tcarte[$tableau[2]]->getNumero(),
+            );
+            $tCouleur = array(
+                $tcarte[$tableau[0]]->getCouleur()->getId(),
+                $tcarte[$tableau[1]]->getCouleur()->getId(),
+                $tcarte[$tableau[2]]->getCouleur()->getId(),
+            );
+            sort($tValeur);
+            if ($tCouleur[0] == $tCouleur[1] && $tCouleur[1] == $tCouleur[2])
+            {
+                $couleur= true;
+            } else
+            {
+                $couleur =false;
+            }
+            if ($tValeur[0] == $tValeur[1] && $tValeur[1] == $tValeur[2])
+            {
+                return 4; //brelan
+            } elseif ($tValeur[0]+1 == $tValeur[1] && $tValeur[1]+1 == $tValeur[2])
+            {
+                if ($couleur)
+                {
+                    return 5; //suite couleur
+                }else
+                {
+                    return 2; //suite
+                }
+            } elseif ($couleur)
+            {
+                return 3; //couleur
+            } else
+            {
+                return 1; //somme
+            }
+        } else{
+            return 0; //erreur
+        }
     }
 }
